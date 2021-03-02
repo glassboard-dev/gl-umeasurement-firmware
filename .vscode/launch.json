@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "name": "Debug LPC55S28",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype":"pyocd",
+        "cwd": "${workspaceRoot}",
+        "executable": "./armgcc/debug/LPC55S28/uMeasurement.elf",
+        "device": "LPC55S28",
+        "runToMain": true,
+        "v1": false,
+        "serverArgs": [
+            "--target",
+            "LPC55S28"
+        ]
+    },
+    {
+        "name": "Debug LPC5526",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype":"pyocd",
+        "cwd": "${workspaceRoot}",
+        "executable": "./armgcc/debug/LPC5526/uMeasurement.elf",
+        "device": "LPC5526",
+        "runToMain": true,
+        "v1": false,
+        "serverArgs": [
+            "--target",
+            "LPC5526"
+        ]
+    }]
+}
