@@ -16,4 +16,5 @@ out/
 debug/
 release/
 *.o
+*.map
 
