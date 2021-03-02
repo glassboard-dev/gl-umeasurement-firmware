@@ -1,10 +1,3 @@
-/*
- * Copyright 2017-2018 NXP
- * All rights reserved.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 #include <stdint.h>
 #include "fsl_common.h"
 #include "fsl_debug_console.h"
