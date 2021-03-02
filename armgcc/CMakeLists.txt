@@ -47,7 +47,7 @@ set(INCLUDES    ${ProjDirPath}/../src
 
 include_directories(${INCLUDES})
 
-set(APP_SRC ${ProjDirPath}/../src/led_blinky.c
+set(APP_SRC ${ProjDirPath}/../src/main.c
             ${ProjDirPath}/../src/pin_mux.c
             ${ProjDirPath}/../src/board.c
             ${ProjDirPath}/../src/clock_config.c

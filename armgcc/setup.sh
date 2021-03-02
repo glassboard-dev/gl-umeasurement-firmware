@@ -1,6 +1,12 @@
 #!/bin/bash
 # Export our ARM GCC compiler
-export ARMGCC_DIR=/usr/local/gcc-arm-none-eabi-10-2020-q4-major
+if [ -z $2 ]
+then
+    echo "Please provide the path to your ARM GCC toolchain."
+else
+    export ARMGCC_DIR=$2
+fi;
+
 # Cleanup any old Cmake artifacts
 if [ -d "CMakeFiles" ];then rm -rf CMakeFiles; fi
 if [ -f "Makefile" ];then rm -f Makefile; fi
