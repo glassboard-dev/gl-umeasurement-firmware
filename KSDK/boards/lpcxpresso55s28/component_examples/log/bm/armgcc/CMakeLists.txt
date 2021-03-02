@@ -1,0 +1,136 @@
+# CROSS COMPILER SETTING
+SET(CMAKE_SYSTEM_NAME Generic)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.1.1)
+
+# THE VERSION NUMBER
+SET (Tutorial_VERSION_MAJOR 1)
+SET (Tutorial_VERSION_MINOR 0)
+
+# ENABLE ASM
+ENABLE_LANGUAGE(ASM)
+
+SET(CMAKE_STATIC_LIBRARY_PREFIX)
+SET(CMAKE_STATIC_LIBRARY_SUFFIX)
+
+SET(CMAKE_EXECUTABLE_LIBRARY_PREFIX)
+SET(CMAKE_EXECUTABLE_LIBRARY_SUFFIX)
+
+# CURRENT DIRECTORY
+SET(ProjDirPath ${CMAKE_CURRENT_SOURCE_DIR})
+
+SET(EXECUTABLE_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
+SET(LIBRARY_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
+
+
+project(log_bm)
+
+set(MCUX_SDK_PROJECT_NAME log_bm.elf)
+
+include(${ProjDirPath}/flags.cmake)
+
+include(${ProjDirPath}/config.cmake)
+
+add_executable(${MCUX_SDK_PROJECT_NAME} 
+"${ProjDirPath}/../log_main.c"
+"${ProjDirPath}/../pin_mux.c"
+"${ProjDirPath}/../pin_mux.h"
+"${ProjDirPath}/../board.c"
+"${ProjDirPath}/../board.h"
+"${ProjDirPath}/../clock_config.c"
+"${ProjDirPath}/../clock_config.h"
+)
+
+target_include_directories(${MCUX_SDK_PROJECT_NAME} PRIVATE
+    ${ProjDirPath}/..
+)
+
+set(CMAKE_MODULE_PATH
+    ${ProjDirPath}/../../../../../../devices/LPC55S28/utilities
+    ${ProjDirPath}/../../../../../../components/lists
+    ${ProjDirPath}/../../../../../../components/panic
+    ${ProjDirPath}/../../../../../../components/serial_manager
+    ${ProjDirPath}/../../../../../../devices/LPC55S28/drivers
+    ${ProjDirPath}/../../../../../../components/osa
+    ${ProjDirPath}/../../../../../../components/log
+    ${ProjDirPath}/../../../../../../devices/LPC55S28
+    ${ProjDirPath}/../../../../../../components/uart
+    ${ProjDirPath}/../../../../../../CMSIS/Include
+)
+
+# include modules
+include(utility_shell_LPC55S28)
+
+include(component_lists_LPC55S28)
+
+include(component_panic_LPC55S28)
+
+include(component_serial_manager_LPC55S28)
+
+include(driver_common_LPC55S28)
+
+include(component_serial_manager_uart_LPC55S28)
+
+include(component_osa_bm_LPC55S28)
+
+include(component_log_LPC55S28)
+
+include(component_log_backend_debugconsole_LPC55S28)
+
+include(component_log_backend_ringbuffer_LPC55S28)
+
+include(driver_clock_LPC55S28)
+
+include(device_LPC55S28_CMSIS_LPC55S28)
+
+include(device_LPC55S28_startup_LPC55S28)
+
+include(driver_flexcomm_usart_LPC55S28)
+
+include(driver_flexcomm_LPC55S28)
+
+include(driver_lpc_iocon_LPC55S28)
+
+include(driver_lpc_gpio_LPC55S28)
+
+include(driver_power_LPC55S28)
+
+include(utility_assert_LPC55S28)
+
+include(utility_debug_console_LPC55S28)
+
+include(component_usart_adapter_LPC55S28)
+
+include(CMSIS_Include_core_cm33_LPC55S28)
+
+include(CMSIS_Include_common_LPC55S28)
+
+include(CMSIS_Include_dsp_LPC55S28)
+
+include(driver_reset_LPC55S28)
+
+include(utilities_misc_utilities_LPC55S28)
+
+include(device_LPC55S28_system_LPC55S28)
+
+
+TARGET_LINK_LIBRARIES(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--start-group)
+
+target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE m)
+
+target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE c)
+
+target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE gcc)
+
+target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE nosys)
+
+if(CMAKE_BUILD_TYPE STREQUAL debug)
+    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../../../../../../devices/LPC55S28/gcc/libpower_hardabi.a)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL release)
+    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../../../../../../devices/LPC55S28/gcc/libpower_hardabi.a)
+endif()
+
+TARGET_LINK_LIBRARIES(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)
+
+
