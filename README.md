@@ -13,7 +13,7 @@ To clean the working directory:
 $ make clean
 ```
 
-To compile run the following:
+To compile the source:
 ```bash
 $ make -j12
 ```
