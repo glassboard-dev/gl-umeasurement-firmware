@@ -26,6 +26,7 @@ board: LPCXpresso55S28
 
 #include "fsl_common.h"
 #include "fsl_gpio.h"
+#include "fsl_iocon.h"
 #include "pin_mux.h"
 
 /* FUNCTION ************************************************************************************************************
@@ -72,18 +73,66 @@ void BOARD_InitPins(void)
     /* Initialize GPIO functionality on pin PIO1_4 (pin 1)  */
     GPIO_PinInit(BOARD_INITPINS_LED_BULE_GPIO, BOARD_INITPINS_LED_BULE_PORT, BOARD_INITPINS_LED_BULE_PIN, &LED_BULE_config);
 
-    IOCON->PIO[1][4] = ((IOCON->PIO[1][4] &
-                         /* Mask bits to zero which are setting */
-                         (~(IOCON_PIO_FUNC_MASK | IOCON_PIO_DIGIMODE_MASK)))
+    // RGB LED Blue
+    const uint32_t port1_pin4_config = ((~(IOCON_PIO_FUNC_MASK | IOCON_PIO_DIGIMODE_MASK))
+                                    /* Selects pin function.
+                                    * : PORT14 (pin 1) is configured as PIO1_4. */
+                                    | IOCON_PIO_FUNC(PIO1_4_FUNC_ALT0)
+                                    /* Select Digital mode.
+                                    * : Enable Digital mode.
+                                    * Digital input is enabled. */
+                                    | IOCON_PIO_DIGIMODE(PIO1_4_DIGIMODE_DIGITAL));
+    IOCON_PinMuxSet(IOCON, 1U, 4U, port1_pin4_config);
 
-                        /* Selects pin function.
-                         * : PORT14 (pin 1) is configured as PIO1_4. */
-                        | IOCON_PIO_FUNC(PIO1_4_FUNC_ALT0)
+    // ADC 0 INPUT CH0
+    const uint32_t port0_pin23_config = (/* Pin is configured as ADC0_0 */
+                                         IOCON_PIO_FUNC0 |
+                                         /* No addition pin function */
+                                         IOCON_PIO_MODE_INACT |
+                                         /* Standard mode, output slew rate control is enabled */
+                                         IOCON_PIO_SLEW_STANDARD |
+                                         /* Input function is not inverted */
+                                         IOCON_PIO_INV_DI |
+                                         /* Enables analog function */
+                                         IOCON_PIO_ANALOG_EN |
+                                         /* Open drain is disabled */
+                                         IOCON_PIO_OPENDRAIN_DI |
+                                         /* Analog switch is closed (enabled) */
+                                         IOCON_PIO_ASW_EN);
+    /* PORT0 PIN23 (coords: 20) is configured as ADC0_0 */
+    IOCON_PinMuxSet(IOCON, 0U, 23U, port0_pin23_config);
 
-                        /* Select Digital mode.
-                         * : Enable Digital mode.
-                         * Digital input is enabled. */
-                        | IOCON_PIO_DIGIMODE(PIO1_4_DIGIMODE_DIGITAL));
+    // PRINTF UART RX
+    const uint32_t port0_pin29_config = (/* Pin is configured as FC0_RXD_SDA_MOSI_DATA */
+                                         IOCON_PIO_FUNC1 |
+                                         /* No addition pin function */
+                                         IOCON_PIO_MODE_INACT |
+                                         /* Standard mode, output slew rate control is enabled */
+                                         IOCON_PIO_SLEW_STANDARD |
+                                         /* Input function is not inverted */
+                                         IOCON_PIO_INV_DI |
+                                         /* Enables digital function */
+                                         IOCON_PIO_DIGITAL_EN |
+                                         /* Open drain is disabled */
+                                         IOCON_PIO_OPENDRAIN_DI);
+    /* PORT0 PIN29 (coords: 92) is configured as FC0_RXD_SDA_MOSI_DATA */
+    IOCON_PinMuxSet(IOCON, 0U, 29U, port0_pin29_config);
+
+    // PRINTF UART TX
+    const uint32_t port0_pin30_config = (/* Pin is configured as FC0_TXD_SCL_MISO_WS */
+                                         IOCON_PIO_FUNC1 |
+                                         /* No addition pin function */
+                                         IOCON_PIO_MODE_INACT |
+                                         /* Standard mode, output slew rate control is enabled */
+                                         IOCON_PIO_SLEW_STANDARD |
+                                         /* Input function is not inverted */
+                                         IOCON_PIO_INV_DI |
+                                         /* Enables digital function */
+                                         IOCON_PIO_DIGITAL_EN |
+                                         /* Open drain is disabled */
+                                         IOCON_PIO_OPENDRAIN_DI);
+    /* PORT0 PIN30 (coords: 94) is configured as FC0_TXD_SCL_MISO_WS */
+    IOCON_PinMuxSet(IOCON, 0U, 30U, port0_pin30_config);
 }
 /***********************************************************************************************************************
  * EOF
