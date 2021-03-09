@@ -1,5 +1,6 @@
-#include "board.h"
 #include "fsl_lpadc.h"
+#include "board.h"
+#include "adc.h"
 
 #define LPADC_USER_CMDID            1U /* CMD1 */
 #define LPADC_DO_OFFSET_CALIBRATION false
@@ -14,8 +15,42 @@ static lpadc_config_t mLpadcConfigStruct;
 static lpadc_conv_command_config_t mLpadcCommandConfigStruct;
 static lpadc_conv_trigger_config_t mLpadcTriggerConfigStruct;
 static lpadc_conv_result_t mLpadcResultConfigStruct;
+static bool adc_conv_complete = true;
+static CB_adc_complete_fptr_t adc_cb = NULL;
 
-void adc_init(void) {
+// static void calibrate(void);
+
+void ADC0_IRQHandler(void) {
+    adc_conv_complete = true;
+
+    if( adc_cb != NULL ) {
+        if (LPADC_GetConvResult(ADC0, &mLpadcResultConfigStruct, 0U)) {
+            adc_cb(mLpadcResultConfigStruct.convValue >> g_LpadcResultShift);
+        }
+    }
+}
+
+// static void calibrate(void) {
+//     #if defined(FSL_FEATURE_LPADC_HAS_CTRL_CALOFS) && FSL_FEATURE_LPADC_HAS_CTRL_CALOFS
+//     #if defined(FSL_FEATURE_LPADC_HAS_OFSTRIM) && FSL_FEATURE_LPADC_HAS_OFSTRIM
+//         /* Request offset calibration. */
+//     #if defined(DEMO_LPADC_DO_OFFSET_CALIBRATION) && DEMO_LPADC_DO_OFFSET_CALIBRATION
+//         LPADC_DoOffsetCalibration(ADC0);
+//     #else
+//         LPADC_SetOffsetValue(ADC0, DEMO_LPADC_OFFSET_VALUE_A, DEMO_LPADC_OFFSET_VALUE_B);
+//     #endif /* DEMO_LPADC_DO_OFFSET_CALIBRATION */
+//     #endif /* FSL_FEATURE_LPADC_HAS_OFSTRIM */
+//         /* Request gain calibration. */
+//         LPADC_DoAutoCalibration(ADC0);
+//     #endif /* FSL_FEATURE_LPADC_HAS_CTRL_CALOFS */
+
+//     #if (defined(FSL_FEATURE_LPADC_HAS_CFG_CALOFS) && FSL_FEATURE_LPADC_HAS_CFG_CALOFS)
+//         /* Do auto calibration. */
+//         LPADC_DoAutoCalibration(ADC0);
+//     #endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
+// }
+
+void adc_init(CB_adc_complete_fptr_t cb) {
 
     // Get the default ADC configuration
     LPADC_GetDefaultConfig(&mLpadcConfigStruct);
@@ -28,23 +63,8 @@ void adc_init(void) {
     // Apply the new configuration for the LPADC module
     LPADC_Init(ADC0, &mLpadcConfigStruct);
 
-    // #if defined(FSL_FEATURE_LPADC_HAS_CTRL_CALOFS) && FSL_FEATURE_LPADC_HAS_CTRL_CALOFS
-    // #if defined(FSL_FEATURE_LPADC_HAS_OFSTRIM) && FSL_FEATURE_LPADC_HAS_OFSTRIM
-    //     /* Request offset calibration. */
-    // #if defined(DEMO_LPADC_DO_OFFSET_CALIBRATION) && DEMO_LPADC_DO_OFFSET_CALIBRATION
-    //     LPADC_DoOffsetCalibration(DEMO_LPADC_BASE);
-    // #else
-    //     LPADC_SetOffsetValue(DEMO_LPADC_BASE, DEMO_LPADC_OFFSET_VALUE_A, DEMO_LPADC_OFFSET_VALUE_B);
-    // #endif /* DEMO_LPADC_DO_OFFSET_CALIBRATION */
-    // #endif /* FSL_FEATURE_LPADC_HAS_OFSTRIM */
-    //     /* Request gain calibration. */
-    //     LPADC_DoAutoCalibration(DEMO_LPADC_BASE);
-    // #endif /* FSL_FEATURE_LPADC_HAS_CTRL_CALOFS */
-
-    // #if (defined(FSL_FEATURE_LPADC_HAS_CFG_CALOFS) && FSL_FEATURE_LPADC_HAS_CFG_CALOFS)
-    //     /* Do auto calibration. */
-    //     LPADC_DoAutoCalibration(DEMO_LPADC_BASE);
-    // #endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
+    // Calibrate the ADC
+    // calibrate();
 
     // Get the default ADC Conversion configuration
     LPADC_GetDefaultConvCommandConfig(&mLpadcCommandConfigStruct);
@@ -65,22 +85,19 @@ void adc_init(void) {
     mLpadcTriggerConfigStruct.enableHardwareTrigger = false;
     // Apply the new conversion trigger configuration
     LPADC_SetConvTriggerConfig(ADC0, 0U, &mLpadcTriggerConfigStruct);
+
+    // Enable the ADC interrupt
+    LPADC_EnableInterrupts(ADC0, kLPADC_FIFO0WatermarkInterruptEnable);
+    EnableIRQ(ADC0_IRQn);
+
+    // Store the callback that we should call when a conversion completes
+    adc_cb = cb;
 }
 
-float adc_read_sync(void) {
-
-    float answer = 0;
-
-     // Trigger an ADC read
-    LPADC_DoSoftwareTrigger(ADC0, 1U); /* 1U is trigger0 mask. */
-
-
-    while (!LPADC_GetConvResult(ADC0, &mLpadcResultConfigStruct, 0U))
-    {
+void adc_read(void) {
+    // Check our flag to see if a conversion is in progress
+    if( adc_conv_complete ) {
+        adc_conv_complete = false;
+        LPADC_DoSoftwareTrigger(ADC0, 1U); /* 1U is trigger0 mask. */
     }
-
-    // Calculate the answer
-    answer = ((mLpadcResultConfigStruct.convValue) >> g_LpadcResultShift) * ADC_LSB_VAL;
-
-    return answer;
 }
