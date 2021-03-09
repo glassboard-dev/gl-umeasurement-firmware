@@ -32,37 +32,40 @@ set(MCUX_SDK_PROJECT_NAME ${CMAKE_PROJECT_NAME}.elf)
 include(${ProjDirPath}/flags.cmake)
 include(${ProjDirPath}/config.cmake)
 
-set(INCLUDES    ${ProjDirPath}/../src
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/drivers
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/debug_console
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/debug_console_lite
-                ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/str
-                ${ProjDirPath}/../KSDK/components/uart
-                ${ProjDirPath}/../KSDK/components/lists
-                ${ProjDirPath}/../KSDK/components/serial_manager
-                ${ProjDirPath}/../KSDK/CMSIS/Include
+set(INCLUDES    ${ProjDirPath}/../src/app
+                ${ProjDirPath}/../src/adc
+                ${ProjDirPath}/../src/board
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/drivers
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/debug_console
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/debug_console_lite
+                ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/str
+                ${ProjDirPath}/../src/KSDK/components/uart
+                ${ProjDirPath}/../src/KSDK/components/lists
+                ${ProjDirPath}/../src/KSDK/components/serial_manager
+                ${ProjDirPath}/../src/KSDK/CMSIS/Include
 )
 
 include_directories(${INCLUDES})
 
 set(APP_SRC ${ProjDirPath}/../src/main.c
-            ${ProjDirPath}/../src/pin_mux.c
-            ${ProjDirPath}/../src/board.c
-            ${ProjDirPath}/../src/clock_config.c
+            ${ProjDirPath}/../src/adc/adc.c
+            ${ProjDirPath}/../src/board/pin_mux.c
+            ${ProjDirPath}/../src/board/board.c
+            ${ProjDirPath}/../src/board/clock_config.c
 )
 
-FILE(GLOB KSDK_DRIVER_SRC   ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/*.c
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/gcc/*.S
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/drivers/*.c
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/*.c
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/debug_console/*.c
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/debug_console_lite/*.c
-                            ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/utilities/str/*.c
-                            ${ProjDirPath}/../KSDK/components/uart/*.c
-                            ${ProjDirPath}/../KSDK/components/lists/*.c
-                            ${ProjDirPath}/../KSDK/components/serial_manager/*.c
+FILE(GLOB KSDK_DRIVER_SRC   ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/*.c
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/gcc/*.S
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/drivers/*.c
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/*.c
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/debug_console/*.c
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/debug_console_lite/*.c
+                            ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/utilities/str/*.c
+                            ${ProjDirPath}/../src/KSDK/components/uart/*.c
+                            ${ProjDirPath}/../src/KSDK/components/lists/*.c
+                            ${ProjDirPath}/../src/KSDK/components/serial_manager/*.c
 )
 
 add_executable(${MCUX_SDK_PROJECT_NAME}
@@ -77,11 +80,11 @@ target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE gcc)
 target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE nosys)
 
 if(CMAKE_BUILD_TYPE STREQUAL debug)
-    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/gcc/libpower_hardabi.a)
+    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/gcc/libpower_hardabi.a)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL release)
-    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../KSDK/devices/${TARGET_MCU}/gcc/libpower_hardabi.a)
+    target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${ProjDirPath}/../src/KSDK/devices/${TARGET_MCU}/gcc/libpower_hardabi.a)
 endif()
 
 target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)

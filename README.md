@@ -1,5 +1,7 @@
 # gl-umeasurement-firmware
 
+[LPC5526JBD64](https://www.nxp.com/part/LPC5526JBD64#/)
+
 ## Setup
 To begin, move to the armgcc directory and execute the setup script, passing the PN you wish to generate a Makefile for (LPC5526 or LPC55S28) and the PATH to your desired ARM GCC toolchain.
 ```bash
