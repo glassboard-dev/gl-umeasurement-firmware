@@ -93,7 +93,10 @@ target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)
 add_custom_target(elfToHex ALL ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.hex DEPENDS ${MCUX_SDK_PROJECT_NAME})
 
 # Convert the elf into a binary file
-add_custom_target(binToHex ALL ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.bin DEPENDS elfToHex)
+add_custom_target(elfToBin ALL ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.bin DEPENDS elfToHex)
+
+# Convert the elf into a binary file
+add_custom_target(size ALL ${CMAKE_OBJSIZE} ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} DEPENDS elfToBin)
 
 # Add a makefile "target" to erase our part
 add_custom_target(erase pyocd erase -t ${TARGET_MCU} --chip)
