@@ -12,6 +12,7 @@ static void BOARD_InitDebugConsole(void);
  * Variables
  ******************************************************************************/
 volatile uint32_t g_systickCounter;
+volatile uint32_t g_delayCounter;
 
 /*******************************************************************************
  * Code
@@ -28,10 +29,12 @@ static void BOARD_InitDebugConsole(void)
 
 void SysTick_Handler(void)
 {
-    if (g_systickCounter != 0U)
+    if (g_delayCounter != 0U)
     {
-        g_systickCounter--;
+        g_delayCounter--;
     }
+
+    g_systickCounter++;
 }
 
 void BOARD_Init(void) {
@@ -49,21 +52,22 @@ void BOARD_Init(void) {
     CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
     CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK);
     CLOCK_SetClkDiv(kCLOCK_DivAdcAsyncClk, 8U, true);
-    // Update the system core clock value
-    SystemCoreClockUpdate();
-    // Set our SysTick frequency
-    SysTick_Config(SystemCoreClock / 320u);
     // Set our oscillator to 150Mhz
     BOARD_BootClockPLL150M();
-
+    // Set our SysTick frequency
+    SysTick_Config(SystemCoreClock / 1000000U);
     // Power Init
     POWER_DisablePD(kPDRUNCFG_PD_LDOGPADC);
 }
 
 void BOARD_DelayTicks(uint32_t n)
 {
-    g_systickCounter = n;
-    while (g_systickCounter != 0U)
+    g_delayCounter = n;
+    while (g_delayCounter != 0U)
     {
     }
+}
+
+uint32_t BOARD_GetTick(void) {
+    return g_systickCounter;
 }

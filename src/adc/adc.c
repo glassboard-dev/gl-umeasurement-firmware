@@ -74,6 +74,8 @@ void adc_init(CB_adc_complete_fptr_t cb) {
     mLpadcCommandConfigStruct.channelNumber = 0U;
     // Set the conversion resolution to high (16bit).. Effectively 15bit since the result is signed
     mLpadcCommandConfigStruct.conversionResolutionMode = kLPADC_ConversionResolutionHigh;
+    // Set the sample time to 3 cycles
+    mLpadcCommandConfigStruct.sampleTimeMode = kLPADC_SampleTimeADCK3;
     // Apply the new configuration for the ADC Conversions
     LPADC_SetConvCommandConfig(ADC0, LPADC_USER_CMDID, &mLpadcCommandConfigStruct);
 

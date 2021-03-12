@@ -89,6 +89,12 @@ endif()
 
 target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)
 
+# Convert the elf into an intel hex file
+add_custom_target(elfToHex ALL ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.hex DEPENDS ${MCUX_SDK_PROJECT_NAME})
+
+# Convert the elf into a binary file
+add_custom_target(binToHex ALL ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.bin DEPENDS elfToHex)
+
 # Add a makefile "target" to erase our part
 add_custom_target(erase pyocd erase -t ${TARGET_MCU} --chip)
 

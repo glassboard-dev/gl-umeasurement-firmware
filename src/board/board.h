@@ -42,6 +42,7 @@ extern "C" {
  ******************************************************************************/
 void BOARD_Init(void);
 void BOARD_DelayTicks(uint32_t n);
+uint32_t BOARD_GetTick(void);
 
 #if defined(__cplusplus)
 }
