@@ -25,3 +25,4 @@ release/
 # VScode settings
 .vscode/*cortex-debug*
 .vscode/settings.json
+.vscode/*_properties.json
