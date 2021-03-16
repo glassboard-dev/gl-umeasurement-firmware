@@ -2,7 +2,8 @@
 # Export our ARM GCC compiler
 if [ -z $2 ]
 then
-    echo "Please provide the path to your ARM GCC toolchain."
+    echo "Using default ARM GCC toolchain path: /usr/local/gcc-arm-none-eabi-10-2020-q4-major"
+    export ARMGCC_DIR=/usr/local/gcc-arm-none-eabi-10-2020-q4-major
 else
     export ARMGCC_DIR=$2
 fi;

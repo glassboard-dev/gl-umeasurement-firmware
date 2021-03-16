@@ -1,3 +1,4 @@
+# CMake files
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -10,7 +11,10 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# Build artifacts
 *.hex
+*.bin
+*.elf
 build/
 out/
 debug/
@@ -18,3 +22,6 @@ release/
 *.o
 *.map
 
+# VScode settings
+.vscode/*cortex-debug*
+.vscode/settings.json
