@@ -22,7 +22,7 @@ The uMeasurement hardware is based on the [LCP55xx](https://www.nxp.com/part/LPC
 - [uMeasurement hardware](https://github.com/glassboard-dev/gl-umeasurement-hardware)
 - [LCPXpresso55S28](https://www.nxp.com/design/software/development-software/lpcxpresso55s28-development-board:LPC55S28-EVK)
 
-You will also need a debug probe for flashing and debugging. Glasslabs provides a probe compatible with PyOCD capalbe of flashing and debugging the target in addition to making the necessary connections for sending UART debug data out of the target when connecting to the uMeasurement hardware.
+You will also need a debug probe for flashing and debugging. Glasslabs provides a probe compatible with PyOCD capable of flashing and debugging the target in addition to making the necessary connections for sending UART debug data out of the target when connecting to the uMeasurement hardware.
 - [GlassLink Debug Probe](https://github.com/glassboard-dev/gl-glass-link-hardware)
 
 Alternatively, the onboard debugger on the LCPXpresso dev kit can be used when developing on the dev kit hardware.
@@ -32,7 +32,7 @@ After a first time install of PyOCD you will need to install the necessary CMSIS
 ```bash
 # Install the pack for our LPC5526 micro
 $ pyocd pack -i lpc5526
-# optionally install the pack for the LPC55S28 micro
+# Optionally install the pack for the LPC55S28 micro
 $ pyocd pack -i lpc55s28
 ```
 
