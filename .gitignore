@@ -21,6 +21,7 @@ debug/
 release/
 *.o
 *.map
+build_log.txt
 
 # VScode settings
 .vscode/*cortex-debug*
