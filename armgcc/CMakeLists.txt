@@ -35,6 +35,7 @@ include(${ProjDirPath}/config.cmake)
 set(INCLUDES    ${ProjDirPath}/../src/app
                 ${ProjDirPath}/../src/adc
                 ${ProjDirPath}/../src/board
+                ${ProjDirPath}/../src/gpio
                 ${ProjDirPath}/../src/SDK/devices/${TARGET_MCU}
                 ${ProjDirPath}/../src/SDK/devices/${TARGET_MCU}/drivers
                 ${ProjDirPath}/../src/SDK/devices/${TARGET_MCU}/utilities
@@ -51,6 +52,7 @@ include_directories(${INCLUDES})
 
 set(APP_SRC ${ProjDirPath}/../src/main.c
             ${ProjDirPath}/../src/adc/adc.c
+            ${ProjDirPath}/../src/gpio/gpio.c
             ${ProjDirPath}/../src/board/pin_mux.c
             ${ProjDirPath}/../src/board/board.c
             ${ProjDirPath}/../src/board/clock_config.c
