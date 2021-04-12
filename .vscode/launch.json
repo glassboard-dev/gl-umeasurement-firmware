@@ -28,7 +28,7 @@
         "v1": false,
         "serverArgs": [
             "--target",
-            "LPC5526"
+            "LPC5526JBD64"
         ]
     }]
 }

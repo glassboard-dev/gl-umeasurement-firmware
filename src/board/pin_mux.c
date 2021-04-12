@@ -67,17 +67,30 @@ void BOARD_InitPins(void)
     CLOCK_EnableClock(kCLOCK_Gpio1);
 
     // Enable the port for our LEDs
-    GPIO_PortInit(GPIO, BOARD_LED_RED_GPIO_PORT);
-    GPIO_PortInit(GPIO, BOARD_LED_BLUE_GPIO_PORT);
-    GPIO_PortInit(GPIO, BOARD_LED_GREEN_GPIO_PORT);
+    GPIO_PortInit(GPIO, BOARD_LED_COMM_GPIO_PORT);
+    GPIO_PortInit(GPIO, BOARD_LED_PWR_GPIO_PORT);
+    GPIO_PortInit(GPIO, BOARD_LED_STATUS_GPIO_PORT);
 
-    gpio_pin_config_t LED_RED_config = {
+    gpio_pin_config_t LED_COMM_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+
+    gpio_pin_config_t LED_PWR_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+
+    gpio_pin_config_t LED_STATUS_config = {
         .pinDirection = kGPIO_DigitalOutput,
         .outputLogic = 0U
     };
 
     /* Initialize GPIO functionality on pin PIO1_4 (pin 1)  */
-    GPIO_PinInit(GPIO, BOARD_LED_RED_GPIO_PORT, BOARD_LED_RED_GPIO_PIN, &LED_RED_config);
+    GPIO_PinInit(GPIO, BOARD_LED_COMM_GPIO_PORT, BOARD_LED_COMM_GPIO_PIN, &LED_COMM_config);
+    GPIO_PinInit(GPIO, BOARD_LED_PWR_GPIO_PORT, BOARD_LED_PWR_GPIO_PIN, &LED_PWR_config);
+    GPIO_PinInit(GPIO, BOARD_LED_STATUS_GPIO_PORT, BOARD_LED_STATUS_GPIO_PIN, &LED_STATUS_config);
+
 
     // ADC 0 INPUT CH0
     const uint32_t port0_pin23_config = (/* Pin is configured as ADC0_0 */

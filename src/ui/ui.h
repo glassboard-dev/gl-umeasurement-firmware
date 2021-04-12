@@ -22,13 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#ifndef _ADC_H_
-#define _ADC_H_
+#ifndef _UI_H_
+#define _UI_H_
 
-typedef void(*CB_adc_complete_fptr_t)(uint16_t adc_count);
+typedef enum {
+    UI_ELE_COMM_LED = 0x00,
+    UI_ELE_STAT_LED,
+    UI_ELE_PWR_LED,
+    UI_ELE__MAX__
+} ui_ele_enum;
 
-void adc_init(CB_adc_complete_fptr_t cb);
-float adc_read_sync(void);
-void adc_read(void);
+typedef enum {
+    UI_MODE_OFF = 0x00,
+    UI_MODE_ON,
+    UI_MODE_FLASH_SLOW,
+    UI_MODE_FLASH_FAST,
+    UI_MODE__MAX__
+} ui_mode_enum;
 
-#endif // _ADC_H_
+void ui_update();
+void ui_setState(ui_ele_enum ele, ui_mode_enum mode);
+
+#endif // _UI_H_

@@ -22,13 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#ifndef _ADC_H_
-#define _ADC_H_
+#ifndef _GPIO_H_
+#define _GPIO_H_
 
-typedef void(*CB_adc_complete_fptr_t)(uint16_t adc_count);
+#include <stdbool.h>
 
-void adc_init(CB_adc_complete_fptr_t cb);
-float adc_read_sync(void);
-void adc_read(void);
+void gpio_setPowerLED(bool val);
+void gpio_setCommLED(bool val);
+void gpio_setStatusLED(bool val);
 
-#endif // _ADC_H_
+#endif // _GPIO_H_

@@ -22,13 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#ifndef _ADC_H_
-#define _ADC_H_
+#include <stdint.h>
+#include <stdbool.h>
+#include "gpio.h"
+#include "board.h"
+#include "pin_mux.h"
 
-typedef void(*CB_adc_complete_fptr_t)(uint16_t adc_count);
+void gpio_setPowerLED(bool val) {
+    if( val ) {
+        GPIO_PortClear(GPIO, BOARD_LED_PWR_GPIO_PORT, 1u << BOARD_LED_PWR_GPIO_PIN);
+    }
+    else {
+        GPIO_PortSet(GPIO, BOARD_LED_PWR_GPIO_PORT, 1u << BOARD_LED_PWR_GPIO_PIN);
+    }
+}
 
-void adc_init(CB_adc_complete_fptr_t cb);
-float adc_read_sync(void);
-void adc_read(void);
+void gpio_setCommLED(bool val) {
+    if( val ) {
+        GPIO_PortClear(GPIO, BOARD_LED_COMM_GPIO_PORT, 1u << BOARD_LED_COMM_GPIO_PIN);
+    }
+    else {
+        GPIO_PortSet(GPIO, BOARD_LED_COMM_GPIO_PORT, 1u << BOARD_LED_COMM_GPIO_PIN);
+    }
+}
 
-#endif // _ADC_H_
+void gpio_setStatusLED(bool val) {
+    if( val ) {
+        GPIO_PortClear(GPIO, BOARD_LED_STATUS_GPIO_PORT, 1u << BOARD_LED_STATUS_GPIO_PIN);
+    }
+    else {
+        GPIO_PortSet(GPIO, BOARD_LED_STATUS_GPIO_PORT, 1u << BOARD_LED_STATUS_GPIO_PIN);
+    }
+}

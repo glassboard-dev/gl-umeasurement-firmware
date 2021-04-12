@@ -1,16 +1,40 @@
+/******************************************************************************
+MIT License
+
+Copyright (c) 2021 Glassboard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*******************************************************************************/
+
 #include <stdio.h>
 #include <string.h>
 #include "fsl_debug_console.h" // Needed for PRINTF
 #include "board.h"
 #include "pin_mux.h"
 #include "adc.h"
+#include "gpio.h"
+#include "ui.h"
 
-#define LED_UPDATE_RATE_uS  500000
 #define ADC_READ_RATE_uS    50
 #define ADC_REPORT_RATE_uS  250000
 #define ADC_BUFF_SIZE       30000
 
-uint32_t led_refTime = 0x0000;
 uint32_t adc_read_refTime = 0x0000;
 uint32_t adc_report_refTime = 0x0000;
 uint16_t adc_count = 0;
@@ -28,10 +52,11 @@ static void reportADC_samples(void) {
     if( adc_count > max_reported)
         max_reported = adc_count;
 
-    // memset(adc_report, 0x00, sizeof(adc_report));
+    memset(adc_report, 0x00, sizeof(adc_report));
     // sprintf(adc_report, "%d samples collected in %dms - Max: %d\n\r", adc_count, ADC_REPORT_RATE_uS/1000, max_reported);
-    // // PRINTF("\033[2J");
-    // PRINTF("%s", adc_report);
+    sprintf(adc_report, "ADC: %d\n\r", adc_samples[0]);
+    PRINTF("\033[2J");
+    PRINTF("%s", adc_report);
 
     adc_count = 0;
 
@@ -47,13 +72,17 @@ int main(void)
 
     PRINTF("Glasslabs - uMeasurement\n\r");
 
-    led_refTime = BOARD_GetTick();
+    ui_setState(UI_ELE_COMM_LED, UI_MODE_FLASH_SLOW);
+    ui_setState(UI_ELE_STAT_LED, UI_MODE_FLASH_FAST);
+    ui_setState(UI_ELE_PWR_LED, UI_MODE_ON);
 
     while (1)
     {
+        // Run our UI update function
+        ui_update();
+
         // Start an async read of the ADC
         if( (adc_read_refTime + ADC_READ_RATE_uS) < BOARD_GetTick() ) {
-            // Toggle the LED to show we are running
             // if( !adc_reporting )
                 adc_read();
             adc_read_refTime = BOARD_GetTick();
@@ -61,15 +90,8 @@ int main(void)
 
         // Start an async read of the ADC
         if( (adc_report_refTime + ADC_REPORT_RATE_uS) < BOARD_GetTick() ) {
-            // Toggle the LED to show we are running
             reportADC_samples();
             adc_report_refTime = BOARD_GetTick();
-        }
-
-        if( (led_refTime + LED_UPDATE_RATE_uS) < BOARD_GetTick() ) {
-            // Toggle the LED to show we are running
-            GPIO_PortToggle(GPIO, BOARD_LED_RED_GPIO_PORT, 1u << BOARD_LED_RED_GPIO_PIN);
-            led_refTime = BOARD_GetTick();
         }
     }
 }

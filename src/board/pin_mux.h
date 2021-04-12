@@ -38,30 +38,15 @@ void BOARD_InitBootPins(void);
 /*! @name PIO1_4 (number 1), R78/P18[5]/LEDR/PWM_ARD
   @{ */
 
-#ifndef BOARD_LED_RED_GPIO
-#define BOARD_LED_RED_GPIO GPIO
-#endif
-#define BOARD_LED_RED_GPIO_PORT 1U
-#ifndef BOARD_LED_RED_GPIO_PIN
-#define BOARD_LED_RED_GPIO_PIN 6U
-#endif
+#define BOARD_LED_COMM_GPIO_PORT 0U
+#define BOARD_LED_COMM_GPIO_PIN 25U
 
-#ifndef BOARD_LED_BLUE_GPIO
-#define BOARD_LED_BLUE_GPIO GPIO
-#endif
-#define BOARD_LED_BLUE_GPIO_PORT 1U
-#ifndef BOARD_LED_BLUE_GPIO_PIN
-#define BOARD_LED_BLUE_GPIO_PIN 4U
-#endif
+#define BOARD_LED_PWR_GPIO_PORT 0U
+#define BOARD_LED_PWR_GPIO_PIN 22U
 
-#ifndef BOARD_LED_GREEN_GPIO
-#define BOARD_LED_GREEN_GPIO GPIO
-#endif
-#define BOARD_LED_GREEN_GPIO_PORT 1U
-#ifndef BOARD_LED_GREEN_GPIO_PIN
-#define BOARD_LED_GREEN_GPIO_PIN 7U
-#endif
-                                          /* @} */
+#define BOARD_LED_STATUS_GPIO_PORT 0U
+#define BOARD_LED_STATUS_GPIO_PIN 21U
+
 
 #define IOCON_PIO_ANALOG_EN 0x00u     /*!<@brief Enables analog function */
 #define IOCON_PIO_ASW_EN 0x0400u      /*!<@brief Analog switch is closed (enabled) */
