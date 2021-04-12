@@ -140,7 +140,7 @@ SET(CMAKE_EXE_LINKER_FLAGS_DEBUG " \
     muldefs \
     -Xlinker \
     -Map=output.map \
-    -T${ProjDirPath}/../src/${TARGET_MCU}_flash.ld -static \
+    -T${ProjDirPath}/../src/board/${TARGET_MCU}_flash.ld -static \
 ")
 
 SET(CMAKE_EXE_LINKER_FLAGS_RELEASE " \
@@ -167,5 +167,5 @@ SET(CMAKE_EXE_LINKER_FLAGS_RELEASE " \
     muldefs \
     -Xlinker \
     -Map=output.map \
-    -T${ProjDirPath}/../src/${TARGET_MCU}_flash.ld -static \
+    -T${ProjDirPath}/../src/board/${TARGET_MCU}_flash.ld -static \
 ")
