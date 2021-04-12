@@ -47,6 +47,14 @@ void BOARD_InitBootPins(void);
 #define BOARD_LED_STATUS_GPIO_PORT 0U
 #define BOARD_LED_STATUS_GPIO_PIN 21U
 
+#define BOARD_mA_nEN_GPIO_PORT 0
+#define BOARD_mA_nEN_GPIO_PIN 8
+
+#define BOARD_uA_nEN_GPIO_PORT 0
+#define BOARD_uA_nEN_GPIO_PIN 27
+
+#define BOARD_nA_nEN_GPIO_PORT 0
+#define BOARD_nA_nEN_GPIO_PIN 31
 
 #define IOCON_PIO_ANALOG_EN 0x00u     /*!<@brief Enables analog function */
 #define IOCON_PIO_ASW_EN 0x0400u      /*!<@brief Analog switch is closed (enabled) */

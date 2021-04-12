@@ -67,14 +67,12 @@ int main(void)
 {
     // Init the the board pins & clocks
     BOARD_Init();
-    // Init the ADC module
+
+    // Module init
     adc_init(adc_cb);
+    ui_init();
 
     PRINTF("Glasslabs - uMeasurement\n\r");
-
-    ui_setState(UI_ELE_COMM_LED, UI_MODE_FLASH_SLOW);
-    ui_setState(UI_ELE_STAT_LED, UI_MODE_FLASH_FAST);
-    ui_setState(UI_ELE_PWR_LED, UI_MODE_ON);
 
     while (1)
     {

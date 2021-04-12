@@ -86,11 +86,30 @@ void BOARD_InitPins(void)
         .outputLogic = 0U
     };
 
-    /* Initialize GPIO functionality on pin PIO1_4 (pin 1)  */
+    gpio_pin_config_t mA_nEN_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+
+    gpio_pin_config_t uA_nEN_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+
+    gpio_pin_config_t nA_nEN_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+
+    // Init our LED ui pins
     GPIO_PinInit(GPIO, BOARD_LED_COMM_GPIO_PORT, BOARD_LED_COMM_GPIO_PIN, &LED_COMM_config);
     GPIO_PinInit(GPIO, BOARD_LED_PWR_GPIO_PORT, BOARD_LED_PWR_GPIO_PIN, &LED_PWR_config);
     GPIO_PinInit(GPIO, BOARD_LED_STATUS_GPIO_PORT, BOARD_LED_STATUS_GPIO_PIN, &LED_STATUS_config);
 
+    // Init our range select pins
+    GPIO_PinInit(GPIO, BOARD_mA_nEN_GPIO_PORT, BOARD_mA_nEN_GPIO_PIN, &mA_nEN_config);
+    GPIO_PinInit(GPIO, BOARD_uA_nEN_GPIO_PORT, BOARD_uA_nEN_GPIO_PIN, &uA_nEN_config);
+    GPIO_PinInit(GPIO, BOARD_nA_nEN_GPIO_PORT, BOARD_nA_nEN_GPIO_PIN, &nA_nEN_config);
 
     // ADC 0 INPUT CH0
     const uint32_t port0_pin23_config = (/* Pin is configured as ADC0_0 */

@@ -30,5 +30,8 @@ SOFTWARE.
 void gpio_setPowerLED(bool val);
 void gpio_setCommLED(bool val);
 void gpio_setStatusLED(bool val);
+void gpio_setMilliAmpEn(bool val);
+void gpio_setMicroAmpEn(bool val);
+void gpio_setNanoAmpEn(bool val);
 
 #endif // _GPIO_H_

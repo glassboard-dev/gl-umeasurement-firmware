@@ -42,6 +42,12 @@ ui_config_str ui_elements[UI_ELE__MAX__] = {
     {.mode = UI_MODE_OFF, .state = 0, .refTime = 0x0000},
 };
 
+void ui_init() {
+    ui_setState(UI_ELE_COMM_LED, UI_MODE_OFF);
+    ui_setState(UI_ELE_STAT_LED, UI_MODE_OFF);
+    ui_setState(UI_ELE_PWR_LED, UI_MODE_ON);
+}
+
 void ui_update() {
     // Loop through all of our UI elements and see if they are set for a 'dynamic' config
     // and in need of updating

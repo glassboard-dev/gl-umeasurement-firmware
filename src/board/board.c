@@ -29,6 +29,7 @@ SOFTWARE.
 #include "fsl_power.h"
 #include "board.h"
 #include "pin_mux.h"
+#include "gpio.h"
 
 static void BOARD_InitDebugConsole(void);
 
@@ -82,6 +83,16 @@ void BOARD_Init(void) {
     SysTick_Config(SystemCoreClock / 1000000U);
     // Power Init
     POWER_DisablePD(kPDRUNCFG_PD_LDOGPADC);
+
+    // Set the initial LED states
+    gpio_setStatusLED(false);
+    gpio_setPowerLED(false);
+    gpio_setCommLED(false);
+
+    // Set the initial Range select states
+    gpio_setMicroAmpEn(false);
+    gpio_setNanoAmpEn(false);
+    gpio_setMilliAmpEn(true);
 }
 
 void BOARD_DelayTicks(uint32_t n)

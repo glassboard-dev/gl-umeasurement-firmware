@@ -40,6 +40,7 @@ typedef enum {
     UI_MODE__MAX__
 } ui_mode_enum;
 
+void ui_init();
 void ui_update();
 void ui_setState(ui_ele_enum ele, ui_mode_enum mode);
 
