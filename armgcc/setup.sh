@@ -1,4 +1,12 @@
 #!/bin/bash
+# Cleanup any old Cmake artifacts
+if [ -d "CMakeFiles" ];then rm -rf CMakeFiles; fi
+if [ -f "Makefile" ];then rm -f Makefile; fi
+if [ -f "cmake_install.cmake" ];then rm -f cmake_install.cmake; fi
+if [ -f "CMakeCache.txt" ];then rm -f CMakeCache.txt; fi
+if [ -d "debug" ];then rm -rf debug; fi
+if [ -d "release" ];then rm -rf debug; fi
+
 # Export our ARM GCC compiler
 if [ -z $2 ]
 then
@@ -7,14 +15,6 @@ then
 else
     export ARMGCC_DIR=$2
 fi;
-
-# Cleanup any old Cmake artifacts
-if [ -d "CMakeFiles" ];then rm -rf CMakeFiles; fi
-if [ -f "Makefile" ];then rm -f Makefile; fi
-if [ -f "cmake_install.cmake" ];then rm -f cmake_install.cmake; fi
-if [ -f "CMakeCache.txt" ];then rm -f CMakeCache.txt; fi
-if [ -d "debug" ];then rm -rf debug; fi
-if [ -d "release" ];then rm -rf debug; fi
 
 # Generate a makefile for the debug variant
 if [ -z $1 ]

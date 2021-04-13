@@ -9,8 +9,10 @@
 To get started with the uMeasurement device you will need a couple pieces of software and a piece of hardware.
 
 ### Software 💻
-At a minium you will need the ARM GNU GCC Toolchain to compile the source and generate executable artifacts.
--   [ARM GNU GCC Toolchain - 10-2020-q4-major](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
+At a minium you will need the ARM GNU GCC Toolchain, Make and CMake to compile the source and generate executable artifacts.
+-   [ARM GNU GCC Toolchain - 10-2020-q4-major](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) - Other versions can be used but the current source is actively developed and tested using the 10-2020-q4-major release
+-   Make is shipped with Linux and should already be present on the developers system. If the developer is running Windows they can either use WSL to run a Linux instance or install Make on Windows via [MinGW](https://sourceforge.net/projects/mingw/)
+-   [CMake](https://cmake.org/download/)
 
 To flash and debug the target this project uses a couple of different tools. PyOCD is used for the programming/debugging medium, and a VScode extension called Cortex-Debug gives a user interface within VScode for stepping through the source, settings breakpoints and viewing registers/variables within the target.
 -   [PyOCD](https://github.com/pyocd/pyOCD#installing)
@@ -36,10 +38,23 @@ $ pyocd pack -i lpc5526
 $ pyocd pack -i lpc55s28
 ```
 
-To begin compiling and developing the firmware, move to the armgcc directory and execute the setup script, passing the PN you wish to generate a Makefile for (LPC5526 or LPC55S28). The uMeasurement board uses the LPC5526 and the LPCXpresso dev kit uses the LPC55S28 micro. You can optionally pass a path to your ARM GNU GCC toolchain. If left blank, the default path of '/usr/local/gcc-arm-none-eabi-10-2020-q4-major' will be used.
+To begin compiling and developing the firmware, move to the armgcc directory and execute the setup script, passing the PN you wish to generate a Makefile for (LPC5526 or LPC55S28). The uMeasurement board uses the LPC5526 and the LPCXpresso dev kit uses the LPC55S28 micro. You can optionally pass a path to your ARM GNU GCC toolchain. If left blank a default path will be used.
+#### Linux
 ```bash
 $ cd armgcc
-$ ./setup.sh LPC5526 /usr/local/gcc-arm-none-eabi-10-2020-q4-major
+# Default path of '/usr/local/gcc-arm-none-eabi-10-2020-q4-major' will be used.
+$ ./setup.sh LPC5526
+# OR
+$ ./setup.sh LPC5526 /${USERS CUSTOM PATH TO ARM GCC TOOLCHAIN}/gcc-arm-none-eabi-10-2020-q4-major
+```
+
+#### Windows
+```bash
+$ cd armgcc
+# Default path of 'C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major' will be used.
+$ ./setup.ps1 LPC5526
+# OR
+$ ./setup.ps1 LPC5526 '\${USERS CUSTOM PATH TO ARM GCC TOOLCHAIN}\10 2020-q4-major'
 ```
 
 ## Compiling & Flashing ✨
