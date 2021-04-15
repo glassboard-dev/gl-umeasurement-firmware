@@ -15,7 +15,7 @@ At a minium you will need the ARM GNU GCC Toolchain, Make and CMake to compile t
 -   [CMake](https://cmake.org/download/)
 
 To flash and debug the target this project uses a couple of different tools. PyOCD is used for the programming/debugging medium, and a VScode extension called Cortex-Debug gives a user interface within VScode for stepping through the source, settings breakpoints and viewing registers/variables within the target.
--   [PyOCD](https://github.com/pyocd/pyOCD#installing)
+-   [PyOCD](https://github.com/pyocd/pyOCD#installing) - Version 0.30.5 or newer is required when programming/debugging the LPC55x microcontrollers.
 -   [VScode](https://code.visualstudio.com/)
 -   [Cortex-Debug VScode extenstion](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
 
@@ -30,14 +30,6 @@ You will also need a debug probe for flashing and debugging. Glasslabs provides 
 Alternatively, the onboard debugger on the LCPXpresso dev kit can be used when developing on the dev kit hardware.
 
 ## Setup ✔️
-After a first time install of PyOCD you will need to install the necessary CMSIS Pack for your target microcontroller.
-```bash
-# Install the pack for our LPC5526 micro
-$ pyocd pack -i lpc5526
-# Optionally install the pack for the LPC55S28 micro
-$ pyocd pack -i lpc55s28
-```
-
 To begin compiling and developing the firmware, move to the armgcc directory and execute the setup script, passing the PN you wish to generate a Makefile for (LPC5526 or LPC55S28). The uMeasurement board uses the LPC5526 and the LPCXpresso dev kit uses the LPC55S28 micro. You can optionally pass a path to your ARM GNU GCC toolchain. If left blank a default path will be used.
 #### Linux
 ```bash
