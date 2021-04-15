@@ -80,10 +80,10 @@ void adc_init(CB_adc_complete_fptr_t cb) {
     LPADC_GetDefaultConfig(&mLpadcConfigStruct);
     // Enable prelim ADC readiness at the cost of current draw
     mLpadcConfigStruct.enableAnalogPreliminary = true;
-    // Set our reference to VDDA - 3.3V
-    mLpadcConfigStruct.referenceVoltageSource = kLPADC_ReferenceVoltageAlt2;
+    // Set our reference to VREFP - 3.0V
+    mLpadcConfigStruct.referenceVoltageSource = kLPADC_ReferenceVoltageAlt3;
     // Average 128 samples in software before reporting a result
-    mLpadcConfigStruct.conversionAverageMode = kLPADC_ConversionAverage128;
+    mLpadcConfigStruct.conversionAverageMode = kLPADC_ConversionAverage1;
     // Apply the new configuration for the LPADC module
     LPADC_Init(ADC0, &mLpadcConfigStruct);
 

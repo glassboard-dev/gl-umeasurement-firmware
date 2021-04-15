@@ -35,6 +35,8 @@ SOFTWARE.
 #define ADC_REPORT_RATE_uS  250000
 #define ADC_BUFF_SIZE       30000
 
+#define ADC_COUNT_OFFSET    13636
+
 uint32_t adc_read_refTime = 0x0000;
 uint32_t adc_report_refTime = 0x0000;
 uint16_t adc_count = 0;
@@ -54,8 +56,7 @@ static void reportADC_samples(void) {
 
     memset(adc_report, 0x00, sizeof(adc_report));
     // sprintf(adc_report, "%d samples collected in %dms - Max: %d\n\r", adc_count, ADC_REPORT_RATE_uS/1000, max_reported);
-    sprintf(adc_report, "ADC: %d\n\r", adc_samples[0]);
-    PRINTF("\033[2J");
+    sprintf(adc_report, "ADC: %d\n\r", (adc_samples[0]) - ADC_COUNT_OFFSET);
     PRINTF("%s", adc_report);
 
     adc_count = 0;
