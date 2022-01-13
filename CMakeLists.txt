@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.13)
 # Set our project and CPU specific flags, options, definitions and Linker Settings
 #####################################################################################
 # Project name
-set(PROJECT_NAME "usb-dev")
+set(PROJECT_NAME "uMeasurement")
 # Desired executable name
 set(EXECUTABLE_NAME ${PROJECT_NAME})
 # MCU Target name as seen in PyOCD
@@ -39,10 +39,10 @@ set(APP_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
             ${CMAKE_CURRENT_SOURCE_DIR}/src/board/board.c
             ${CMAKE_CURRENT_SOURCE_DIR}/src/board/clock_config.c
             ${CMAKE_CURRENT_SOURCE_DIR}/src/board/pin_mux.c
-            # ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/hid_generic.c
-            # ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_ch9.c
-            # ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_descriptor.c
-            # ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_hid.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/hid_generic.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_ch9.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_descriptor.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/usb/usb_device_hid.c
 )
 
 # Glob together a list of our SDK source
