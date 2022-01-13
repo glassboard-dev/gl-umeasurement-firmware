@@ -31,8 +31,8 @@ SOFTWARE.
 #include "gpio.h"
 #include "ui.h"
 
-#define ADC_READ_RATE_uS    50
-#define ADC_REPORT_RATE_uS  250000
+#define ADC_READ_RATE_uS    1
+#define ADC_REPORT_RATE_uS  10
 #define ADC_BUFF_SIZE       30000
 
 #define ADC_COUNT_OFFSET    13636
