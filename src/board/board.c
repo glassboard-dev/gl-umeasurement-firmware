@@ -70,6 +70,21 @@ void BOARD_Init(void) {
     BOARD_InitPins();
     // Init the Debug console on UART0
     BOARD_InitDebugConsole();
+    // Init the PLL and Clocks
+    BOARD_InitBootClocks();
+    // Set our SysTick frequency
+    CLOCK_SetClkDiv(kCLOCK_DivAdcAsyncClk, 8U, true);
+    SysTick_Config(SystemCoreClock / 1000U);
+
+    CLOCK_EnableClock(kCLOCK_Usbh1);
+    /* Put PHY powerdown under software control */
+    *((uint32_t *)(USBHSH_BASE + 0x50)) = USBHSH_PORTMODE_SW_PDCOM_MASK;
+    /* According to reference mannual, device mode setting has to be set by access usb host register */
+    *((uint32_t *)(USBHSH_BASE + 0x50)) |= USBHSH_PORTMODE_DEV_ENABLE_MASK;
+
+    // Clock configuration
+    CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
+    CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK);
 
     // Power Init
     POWER_DisablePD(kPDRUNCFG_PD_LDOGPADC);
@@ -83,22 +98,6 @@ void BOARD_Init(void) {
     RESET_PeripheralReset(kUSB1D_RST_SHIFT_RSTn);
     RESET_PeripheralReset(kUSB1_RST_SHIFT_RSTn);
     RESET_PeripheralReset(kUSB1RAM_RST_SHIFT_RSTn);
-
-    CLOCK_EnableClock(kCLOCK_Usbh1);
-    /* Put PHY powerdown under software control */
-    *((uint32_t *)(USBHSH_BASE + 0x50)) = USBHSH_PORTMODE_SW_PDCOM_MASK;
-    /* According to reference mannual, device mode setting has to be set by access usb host register */
-    *((uint32_t *)(USBHSH_BASE + 0x50)) |= USBHSH_PORTMODE_DEV_ENABLE_MASK;
-
-    // Clock configuration
-    CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
-    CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK);
-    CLOCK_SetClkDiv(kCLOCK_DivAdcAsyncClk, 8U, true);
-
-    // Set our oscillator to 150Mhz
-    BOARD_BootClockPLL150M();
-    // Set our SysTick frequency
-    SysTick_Config(SystemCoreClock / 1000U);
 
     // Set the initial LED states
     gpio_setStatusLED(false);
