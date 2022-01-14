@@ -29,6 +29,7 @@ typedef void(*CB_adc_complete_fptr_t)(uint16_t adc_count);
 
 void adc_init(CB_adc_complete_fptr_t cb);
 float adc_read_sync(void);
-void adc_read(void);
+void adc_start_read(void);
+void adc_stop_read(void);
 
 #endif // _ADC_H_

@@ -52,11 +52,12 @@ int main(void)
     // Other init code
     PRINTF("Glasslabs - uMeasurement\n\r");
 
+    adc_start_read();
+
     while (1)
     {
         // Run our UI update function
         ui_update();
-        adc_read();
     }
 }
 

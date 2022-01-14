@@ -39,19 +39,20 @@ static lpadc_config_t mLpadcConfigStruct;
 static lpadc_conv_command_config_t mLpadcCommandConfigStruct;
 static lpadc_conv_trigger_config_t mLpadcTriggerConfigStruct;
 static lpadc_conv_result_t mLpadcResultConfigStruct;
-static bool adc_conv_complete = true;
+static bool adc_run = false;
 static CB_adc_complete_fptr_t adc_cb = NULL;
 
 // static void calibrate(void);
 
 void ADC0_IRQHandler(void) {
-    adc_conv_complete = true;
-
     if( adc_cb != NULL ) {
         if (LPADC_GetConvResult(ADC0, &mLpadcResultConfigStruct, 0U)) {
             adc_cb(mLpadcResultConfigStruct.convValue >> g_LpadcResultShift);
         }
     }
+
+    if(adc_run)
+        LPADC_DoSoftwareTrigger(ADC0, 1U); /* 1U is trigger0 mask. */
 }
 
 // static void calibrate(void) {
@@ -120,10 +121,16 @@ void adc_init(CB_adc_complete_fptr_t cb) {
     adc_cb = cb;
 }
 
-void adc_read(void) {
+void adc_start_read(void) {
     // Check our flag to see if a conversion is in progress
-    if( adc_conv_complete ) {
-        adc_conv_complete = false;
+    if(!adc_run) {
+        adc_run = true;
         LPADC_DoSoftwareTrigger(ADC0, 1U); /* 1U is trigger0 mask. */
+    }
+}
+
+void adc_stop_read(void) {
+    if(adc_run) {
+        adc_run = false;
     }
 }
