@@ -52,6 +52,7 @@ USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_SetupOutBuffer[
 // USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
 // static uint32_t s_GenericBuffer1[USB_HID_GENERIC_OUT_BUFFER_LENGTH >> 2];
 usb_hid_generic_struct_t g_UsbDeviceHidGeneric;
+static CB_usb_complete_fptr_t usb_cb = NULL;
 
 extern uint8_t g_UsbDeviceCurrentConfigure;
 extern uint8_t g_UsbDeviceInterface[USB_HID_GENERIC_INTERFACE_COUNT];
@@ -96,9 +97,9 @@ static usb_status_t USB_DeviceHidGenericInterruptIn(usb_device_handle handle,
     // memcpy((void*)&g_UsbDeviceHidGeneric.buffer[1][0], buff, 5);
     if (g_UsbDeviceHidGeneric.attach)
     {
-        return USB_DeviceSendRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_ENDPOINT_IN,
-                               (uint8_t *)&g_UsbDeviceHidGeneric.buffer[1][0],
-                               5);
+        // Call our USB callback.
+        usb_cb();
+        return kStatus_USB_Error;
     }
 
     return kStatus_USB_Error;
@@ -112,7 +113,7 @@ static usb_status_t USB_DeviceHidGenericInterruptOut(usb_device_handle handle,
     if (g_UsbDeviceHidGeneric.attach)
     {
         // Initiate a RCV
-        return USB_DeviceRecvRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_ENDPOINT_OUT,
+        return USB_DeviceRecvRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_INT_ENDPOINT_OUT,
                                      (uint8_t *)&g_UsbDeviceHidGeneric.buffer[0][0],
                                      USB_HID_GENERIC_OUT_BUFFER_LENGTH);
     }
@@ -155,8 +156,7 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
 
                 epInitStruct.zlt          = 0U;
                 epInitStruct.transferType = USB_ENDPOINT_INTERRUPT;
-                epInitStruct.endpointAddress =
-                    USB_HID_GENERIC_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
+                epInitStruct.endpointAddress = USB_HID_GENERIC_INT_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
                 if (USB_SPEED_HIGH == g_UsbDeviceHidGeneric.speed)
                 {
                     epInitStruct.maxPacketSize = HS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE;
@@ -175,8 +175,7 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
 
                 epInitStruct.zlt          = 0U;
                 epInitStruct.transferType = USB_ENDPOINT_INTERRUPT;
-                epInitStruct.endpointAddress =
-                    USB_HID_GENERIC_ENDPOINT_OUT | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
+                epInitStruct.endpointAddress = USB_HID_GENERIC_INT_ENDPOINT_OUT | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
                 if (USB_SPEED_HIGH == g_UsbDeviceHidGeneric.speed)
                 {
                     epInitStruct.maxPacketSize = HS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE;
@@ -193,13 +192,13 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
                 g_UsbDeviceHidGeneric.attach = 1U;
 
                 error &= USB_DeviceRecvRequest(
-                    g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_ENDPOINT_OUT,
+                    g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_INT_ENDPOINT_OUT,
                     (uint8_t *)&g_UsbDeviceHidGeneric.buffer[0][0],
                     USB_HID_GENERIC_OUT_BUFFER_LENGTH);
                 error &= USB_DeviceSendRequest(
-                    g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_ENDPOINT_IN,
+                    g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_INT_ENDPOINT_IN,
                     (uint8_t *)&g_UsbDeviceHidGeneric.buffer[1][0],
-                    4);
+                    USB_HID_GENERIC_IN_BUFFER_LENGTH);
             }
             break;
         default:
@@ -233,9 +232,9 @@ usb_status_t USB_DeviceConfigureEndpointStatus(usb_device_handle handle, uint8_t
 {
     if (status)
     {
-        if (((USB_HID_GENERIC_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+        if (((USB_HID_GENERIC_INT_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK)) ||
-            ((USB_HID_GENERIC_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+            ((USB_HID_GENERIC_INT_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))))
         {
             return USB_DeviceStallEndpoint(handle, ep);
@@ -246,9 +245,9 @@ usb_status_t USB_DeviceConfigureEndpointStatus(usb_device_handle handle, uint8_t
     }
     else
     {
-        if (((USB_HID_GENERIC_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+        if (((USB_HID_GENERIC_INT_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK)) ||
-            ((USB_HID_GENERIC_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+            ((USB_HID_GENERIC_INT_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))))
         {
             return USB_DeviceUnstallEndpoint(handle, ep);
@@ -308,9 +307,12 @@ usb_status_t USB_DeviceProcessClassRequest(usb_device_handle handle,
     return error;
 }
 
-void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF)
+void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF, CB_usb_complete_fptr_t cb)
 {
     USB_DeviceClockInit();
+
+    // Store our USB cb
+    usb_cb = cb;
 
     /* Set HID generic default state */
     g_UsbDeviceHidGeneric.speed        = USB_SPEED_FULL;
@@ -336,6 +338,12 @@ void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF)
     /*Add one delay here to make the DP pull down long enough to allow host to detect the previous disconnection.*/
     SDK_DelayAtLeastUs(5000, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
     USB_DeviceRun(g_UsbDeviceHidGeneric.deviceHandle);
+}
+
+void USB_DeviceReqRead(void) {
+    USB_DeviceSendRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_INT_ENDPOINT_IN,
+                               (uint8_t *)&g_UsbDeviceHidGeneric.buffer[1][0],
+                               USB_HID_GENERIC_IN_BUFFER_LENGTH);
 }
 
 // static void BOARD_InitDebugConsole(void)

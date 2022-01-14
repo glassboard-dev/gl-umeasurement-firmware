@@ -84,10 +84,10 @@ uint8_t g_UsbDeviceConfigurationDescriptor[] = {
     USB_DESCRIPTOR_LENGTH_CONFIGURE, /* Size of this descriptor in bytes */
     USB_DESCRIPTOR_TYPE_CONFIGURE,   /* CONFIGURATION Descriptor Type */
     USB_SHORT_GET_LOW(USB_DESCRIPTOR_LENGTH_CONFIGURE + USB_DESCRIPTOR_LENGTH_INTERFACE + USB_DESCRIPTOR_LENGTH_HID +
-                      USB_DESCRIPTOR_LENGTH_ENDPOINT + USB_DESCRIPTOR_LENGTH_ENDPOINT),
+                      USB_DESCRIPTOR_LENGTH_ENDPOINT + USB_DESCRIPTOR_LENGTH_ENDPOINT + USB_DESCRIPTOR_LENGTH_ENDPOINT),
     USB_SHORT_GET_HIGH(USB_DESCRIPTOR_LENGTH_CONFIGURE + USB_DESCRIPTOR_LENGTH_INTERFACE + USB_DESCRIPTOR_LENGTH_HID +
                        USB_DESCRIPTOR_LENGTH_ENDPOINT +
-                       USB_DESCRIPTOR_LENGTH_ENDPOINT), /* Total length of data returned for this configuration. */
+                       USB_DESCRIPTOR_LENGTH_ENDPOINT + USB_DESCRIPTOR_LENGTH_ENDPOINT), /* Total length of data returned for this configuration. */
     USB_HID_GENERIC_INTERFACE_COUNT,                    /* Number of interfaces supported by this configuration */
     USB_HID_GENERIC_CONFIGURE_INDEX,                    /* Value to use as an argument to the
                                                            SetConfiguration() request to select this configuration */
@@ -134,50 +134,50 @@ uint8_t g_UsbDeviceConfigurationDescriptor[] = {
     USB_SHORT_GET_HIGH(USB_DESCRIPTOR_LENGTH_HID_GENERIC_REPORT),
     /* Numeric expression that is the total size of the
        Report descriptor. */
+
+    /* GENERIC INT IN ENDPOINT */
     USB_DESCRIPTOR_LENGTH_ENDPOINT, /* Size of this descriptor in bytes */
     USB_DESCRIPTOR_TYPE_ENDPOINT,   /* ENDPOINT Descriptor Type */
-    USB_HID_GENERIC_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
+    USB_HID_GENERIC_INT_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
     /* The address of the endpoint on the USB device
        described by this descriptor. */
     USB_ENDPOINT_INTERRUPT, /* This field describes the endpoint's attributes */
-    USB_SHORT_GET_LOW(FS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE),
-    USB_SHORT_GET_HIGH(FS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE),
+    USB_SHORT_GET_LOW(HS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE),
+    USB_SHORT_GET_HIGH(HS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE),
     /* Maximum packet size this endpoint is capable of
        sending or receiving when this configuration is
        selected. */
     FS_HID_GENERIC_INTERRUPT_IN_INTERVAL, /* Interval for polling endpoint for data transfers. */
 
+    /* GENERIC OUT ENDPOINT */
     USB_DESCRIPTOR_LENGTH_ENDPOINT, /* Size of this descriptor in bytes */
     USB_DESCRIPTOR_TYPE_ENDPOINT,   /* ENDPOINT Descriptor Type */
-    USB_HID_GENERIC_ENDPOINT_OUT | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
+    USB_HID_GENERIC_INT_ENDPOINT_OUT | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
     /* The address of the endpoint on the USB device
        described by this descriptor. */
     USB_ENDPOINT_INTERRUPT, /* This field describes the endpoint's attributes */
-    USB_SHORT_GET_LOW(FS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE),
-    USB_SHORT_GET_HIGH(FS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE),
+    USB_SHORT_GET_LOW(HS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE),
+    USB_SHORT_GET_HIGH(HS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE),
     /* Maximum packet size this endpoint is capable of
        sending or receiving when this configuration is
        selected. */
-    FS_HID_GENERIC_INTERRUPT_OUT_INTERVAL, /* Interval for polling endpoint for data transfers. */
+    HS_HID_GENERIC_INTERRUPT_OUT_INTERVAL, /* Interval for polling endpoint for data transfers. */
+
+    /* GENERIC ISO IN ENDPOINT */
+    USB_DESCRIPTOR_LENGTH_ENDPOINT, /* Size of this descriptor in bytes */
+    USB_DESCRIPTOR_TYPE_ENDPOINT,   /* ENDPOINT Descriptor Type */
+    USB_HID_GENERIC_ISO_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT),
+    /* The address of the endpoint on the USB device
+       described by this descriptor. */
+    USB_ENDPOINT_ISOCHRONOUS, /* This field describes the endpoint's attributes */
+    USB_SHORT_GET_LOW(HS_HID_GENERIC_ISO_IN_PACKET_SIZE),
+    USB_SHORT_GET_HIGH(HS_HID_GENERIC_ISO_IN_PACKET_SIZE),
+    /* Maximum packet size this endpoint is capable of
+       sending or receiving when this configuration is
+       selected. */
+    HS_HID_GENERIC_ISO_IN_INTERVAL, /* Interval for polling endpoint for data transfers. */
 };
 
-#if (defined(USB_DEVICE_CONFIG_CV_TEST) && (USB_DEVICE_CONFIG_CV_TEST > 0U))
-USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
-uint8_t g_UsbDeviceQualifierDescriptor[] = {
-    USB_DESCRIPTOR_LENGTH_DEVICE_QUALITIER, /* Size of this descriptor in bytes */
-    USB_DESCRIPTOR_TYPE_DEVICE_QUALITIER,   /* DEVICE Descriptor Type */
-    USB_SHORT_GET_LOW(USB_DEVICE_SPECIFIC_BCD_VERSION),
-    USB_SHORT_GET_HIGH(USB_DEVICE_SPECIFIC_BCD_VERSION), /* USB Specification Release Number in
-                                                            Binary-Coded Decimal (i.e., 2.10 is 210H). */
-    USB_DEVICE_CLASS,                                    /* Class code (assigned by the USB-IF). */
-    USB_DEVICE_SUBCLASS,                                 /* Subclass code (assigned by the USB-IF). */
-    USB_DEVICE_PROTOCOL,                                 /* Protocol code (assigned by the USB-IF). */
-    USB_CONTROL_MAX_PACKET_SIZE,                         /* Maximum packet size for endpoint zero
-                                                            (only 8, 16, 32, or 64 are valid) */
-    0x00U,                                               /* Number of Other-speed Configurations */
-    0x00U,                                               /* Reserved for future use, must be zero */
-};
-#endif
 USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
 uint8_t g_UsbDeviceString0[] = {
     2U + 2U,
@@ -188,26 +188,33 @@ uint8_t g_UsbDeviceString0[] = {
 
 USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
 uint8_t g_UsbDeviceString1[] = {
-    2U + 2U * 7U, USB_DESCRIPTOR_TYPE_STRING,
+    2U + 2U * 9U, USB_DESCRIPTOR_TYPE_STRING,
+    'G',           0x00U,
+    'l',           0x00U,
+    'a',           0x00U,
     's',           0x00U,
-    'm',           0x00U,
-    'u',           0x00U,
-    'r',           0x00U,
-    'p',           0x00U,
-    'h',           0x00U,
-    'y',           0x00U,
+    's',           0x00U,
+    'l',           0x00U,
+    'a',           0x00U,
+    'b',           0x00U,
+    's',           0x00U,
 };
 
 USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
 uint8_t g_UsbDeviceString2[] = {
-    2U + 2U * 7U, USB_DESCRIPTOR_TYPE_STRING,
+    2U + 2U * 12U, USB_DESCRIPTOR_TYPE_STRING,
     'u',           0x00U,
-    's',           0x00U,
-    'b',           0x00U,
-    '-',           0x00U,
-    'd',           0x00U,
+    'M',           0x00U,
     'e',           0x00U,
-    'v',           0x00U,
+    'a',           0x00U,
+    's',           0x00U,
+    'u',           0x00U,
+    'r',           0x00U,
+    'e',           0x00U,
+    'm',           0x00U,
+    'e',           0x00U,
+    'n',           0x00U,
+    't',           0x00U,
 };
 
 uint32_t g_UsbDeviceStringDescriptorLength[USB_DEVICE_STRING_COUNT] = {
@@ -309,15 +316,6 @@ usb_status_t USB_DeviceGetDescriptor(usb_device_handle handle,
             *length = USB_DESCRIPTOR_LENGTH_CONFIGURATION_ALL;
         }
         break;
-#if (defined(USB_DEVICE_CONFIG_CV_TEST) && (USB_DEVICE_CONFIG_CV_TEST > 0U))
-        case USB_DESCRIPTOR_TYPE_DEVICE_QUALITIER:
-        {
-            /* Get Qualifier descriptor */
-            *buffer = g_UsbDeviceQualifierDescriptor;
-            *length = USB_DESCRIPTOR_LENGTH_DEVICE_QUALITIER;
-        }
-        break;
-#endif
         default:
             error = kStatus_USB_InvalidRequest;
             break;
@@ -380,7 +378,7 @@ usb_status_t USB_DeviceSetSpeed(uint8_t speed)
             {
                 if (((descriptorHead->endpoint.bEndpointAddress & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
                      USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_IN) &&
-                    (USB_HID_GENERIC_ENDPOINT_IN ==
+                    (USB_HID_GENERIC_INT_ENDPOINT_IN ==
                      (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
                 {
                     descriptorHead->endpoint.bInterval = HS_HID_GENERIC_INTERRUPT_IN_INTERVAL;
@@ -390,7 +388,7 @@ usb_status_t USB_DeviceSetSpeed(uint8_t speed)
                 else if (((descriptorHead->endpoint.bEndpointAddress &
                            USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
                           USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_OUT) &&
-                         (USB_HID_GENERIC_ENDPOINT_OUT ==
+                         (USB_HID_GENERIC_INT_ENDPOINT_OUT ==
                           (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
                 {
                     descriptorHead->endpoint.bInterval = HS_HID_GENERIC_INTERRUPT_OUT_INTERVAL;
@@ -405,7 +403,7 @@ usb_status_t USB_DeviceSetSpeed(uint8_t speed)
             {
                 if (((descriptorHead->endpoint.bEndpointAddress & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
                      USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_IN) &&
-                    (USB_HID_GENERIC_ENDPOINT_IN ==
+                    (USB_HID_GENERIC_INT_ENDPOINT_IN ==
                      (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
                 {
                     descriptorHead->endpoint.bInterval = FS_HID_GENERIC_INTERRUPT_IN_INTERVAL;
@@ -415,7 +413,7 @@ usb_status_t USB_DeviceSetSpeed(uint8_t speed)
                 else if (((descriptorHead->endpoint.bEndpointAddress &
                            USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
                           USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_OUT) &&
-                         (USB_HID_GENERIC_ENDPOINT_OUT ==
+                         (USB_HID_GENERIC_INT_ENDPOINT_OUT ==
                           (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
                 {
                     descriptorHead->endpoint.bInterval = FS_HID_GENERIC_INTERRUPT_OUT_INTERVAL;

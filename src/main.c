@@ -31,13 +31,20 @@ SOFTWARE.
 #include "gpio.h"
 #include "ui.h"
 #include "hid_generic.h"
+#include "usb_device_descriptor.h"
 
 #define ADC_COUNT_OFFSET    13636
+#define USB_INTERVAL        1
 
-uint8_t rx_buffer[1024] = {0x00};
-uint8_t tx_buffer[1024] = {0x00};
+uint8_t rx_buffer[USB_HID_GENERIC_OUT_BUFFER_LENGTH] = {0x00};
+uint8_t tx_buffer[USB_HID_GENERIC_IN_BUFFER_LENGTH] = {0x00};
+uint16_t adc_samples = 0x00;
+uint16_t sample_index = 0x02;
+
+uint32_t usb_ref_time = 0x00;
 
 void adc_cb(uint16_t count);
+void usb_cb(void);
 
 int main(void)
 {
@@ -45,7 +52,7 @@ int main(void)
     BOARD_Init();
 
     // Module init
-    USB_DeviceApplicationInit(tx_buffer, rx_buffer);
+    USB_DeviceApplicationInit(tx_buffer, rx_buffer, usb_cb);
     adc_init(adc_cb);
     ui_init();
 
@@ -58,10 +65,33 @@ int main(void)
     {
         // Run our UI update function
         ui_update();
+
+        if( BOARD_GetTick() > (usb_ref_time + USB_INTERVAL)) {
+            // Request a USB read of us.
+            USB_DeviceReqRead();
+            usb_ref_time = BOARD_GetTick();
+        }
     }
 }
 
 void adc_cb(uint16_t count) {
-    tx_buffer[0] = (uint8_t)(count);
-    tx_buffer[1] = (uint8_t)(count >> 8);
+    if( adc_samples >= ((USB_HID_GENERIC_IN_BUFFER_LENGTH / 2)-2)) {
+        return;
+    }
+
+    // DATA & ADDRESS IS LOADED LSB FIRST
+    memcpy(&tx_buffer[0], &adc_samples, 2);
+    memcpy(&tx_buffer[sample_index++], &count, 2);
+    adc_samples++;
+    sample_index++;
+    // tx_buffer[0] = (uint8_t)(adc_samples >> 8);
+    // tx_buffer[1] = (uint8_t)(adc_samples);
+    // tx_buffer[sample_index++] = (uint8_t)(count);
+    // tx_buffer[sample_index++] = (uint8_t)(count >> 8);
+}
+
+void usb_cb(void) {
+    memset(tx_buffer, 0x00, USB_HID_GENERIC_IN_BUFFER_LENGTH);
+    adc_samples = 0x00;
+    sample_index = 0x02;
 }

@@ -27,9 +27,12 @@ typedef struct _usb_hid_generic_struct
     uint8_t attach;
 } usb_hid_generic_struct_t;
 
+typedef void(*CB_usb_complete_fptr_t)(void);
+
 /*******************************************************************************
  * API
  ******************************************************************************/
-void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF);
+void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF, CB_usb_complete_fptr_t cb);
+void USB_DeviceReqRead(void);
 
 #endif /* __USB_DEVICE_HID_GENERIC_H__ */
