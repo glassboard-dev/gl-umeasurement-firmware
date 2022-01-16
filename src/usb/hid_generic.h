@@ -20,7 +20,7 @@
 typedef struct _usb_hid_generic_struct
 {
     usb_device_handle deviceHandle;
-    uint8_t *buffer[2];
+    uint8_t *buffer[3];
     uint8_t bufferIndex;
     uint8_t idleRate;
     uint8_t speed;
@@ -32,7 +32,7 @@ typedef void(*CB_usb_complete_fptr_t)(void);
 /*******************************************************************************
  * API
  ******************************************************************************/
-void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF, CB_usb_complete_fptr_t cb);
+void USB_DeviceApplicationInit(uint8_t *INT_IN_EP_BUFF, uint8_t *INT_OUT_EP_BUFF, uint8_t *ISO_IN_EP_BUFF, CB_usb_complete_fptr_t cb);
 void USB_DeviceReqRead(void);
 
 #endif /* __USB_DEVICE_HID_GENERIC_H__ */

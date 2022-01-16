@@ -395,34 +395,22 @@ usb_status_t USB_DeviceSetSpeed(uint8_t speed)
                     USB_SHORT_TO_LITTLE_ENDIAN_ADDRESS(HS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE,
                                                        descriptorHead->endpoint.wMaxPacketSize);
                 }
+                else if (((descriptorHead->endpoint.bEndpointAddress &
+                           USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
+                          USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_OUT) &&
+                         (USB_HID_GENERIC_ISO_ENDPOINT_IN ==
+                          (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
+                {
+                    descriptorHead->endpoint.bInterval = HS_HID_GENERIC_ISO_IN_INTERVAL;
+                    USB_SHORT_TO_LITTLE_ENDIAN_ADDRESS(HS_HID_GENERIC_ISO_IN_PACKET_SIZE,
+                                                       descriptorHead->endpoint.wMaxPacketSize);
+                }
                 else
                 {
                 }
             }
             else
             {
-                if (((descriptorHead->endpoint.bEndpointAddress & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
-                     USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_IN) &&
-                    (USB_HID_GENERIC_INT_ENDPOINT_IN ==
-                     (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
-                {
-                    descriptorHead->endpoint.bInterval = FS_HID_GENERIC_INTERRUPT_IN_INTERVAL;
-                    USB_SHORT_TO_LITTLE_ENDIAN_ADDRESS(FS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE,
-                                                       descriptorHead->endpoint.wMaxPacketSize);
-                }
-                else if (((descriptorHead->endpoint.bEndpointAddress &
-                           USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK) ==
-                          USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_OUT) &&
-                         (USB_HID_GENERIC_INT_ENDPOINT_OUT ==
-                          (descriptorHead->endpoint.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)))
-                {
-                    descriptorHead->endpoint.bInterval = FS_HID_GENERIC_INTERRUPT_OUT_INTERVAL;
-                    USB_SHORT_TO_LITTLE_ENDIAN_ADDRESS(FS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE,
-                                                       descriptorHead->endpoint.wMaxPacketSize);
-                }
-                else
-                {
-                }
             }
         }
         descriptorHead = (usb_descriptor_union_t *)((uint8_t *)descriptorHead + descriptorHead->common.bLength);

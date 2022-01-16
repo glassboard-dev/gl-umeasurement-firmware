@@ -39,8 +39,11 @@ static usb_status_t USB_DeviceHidGenericInterruptIn(usb_device_handle handle,
                                                     usb_device_endpoint_callback_message_struct_t *message,
                                                     void *callbackParam);
 static usb_status_t USB_DeviceHidGenericInterruptOut(usb_device_handle handle,
-                                                     usb_device_endpoint_callback_message_struct_t *message,
-                                                     void *callbackParam);
+                                                    usb_device_endpoint_callback_message_struct_t *message,
+                                                    void *callbackParam);
+static usb_status_t USB_DeviceHidGenericIsochronousIn(usb_device_handle handle,
+                                                    usb_device_endpoint_callback_message_struct_t *message,
+                                                    void *callbackParam);
 
 /*******************************************************************************
  * Variables
@@ -71,12 +74,11 @@ void USB_DeviceClockInit(void)
     CLOCK_EnableUsbhs0PhyPllClock(kCLOCK_UsbPhySrcExt, BOARD_XTAL0_CLK_HZ);
     CLOCK_EnableUsbhs0DeviceClock(kCLOCK_UsbSrcUnused, 0U);
     USB_EhciPhyInit(CONTROLLER_ID, BOARD_XTAL0_CLK_HZ, NULL);
-#if defined(FSL_FEATURE_USBHSD_USB_RAM) && (FSL_FEATURE_USBHSD_USB_RAM)
+
     for (int i = 0; i < FSL_FEATURE_USBHSD_USB_RAM; i++)
     {
         ((uint8_t *)FSL_FEATURE_USBHSD_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
     }
-#endif
 }
 void USB_DeviceIsrEnable(void)
 {
@@ -89,17 +91,34 @@ void USB_DeviceIsrEnable(void)
 }
 
 /* The hid generic interrupt IN endpoint callback */
-static usb_status_t USB_DeviceHidGenericInterruptIn(usb_device_handle handle,
+static usb_status_t USB_DeviceHidGenericIsochronousIn(usb_device_handle handle,
                                                     usb_device_endpoint_callback_message_struct_t *message,
                                                     void *callbackParam)
 {
-    // uint8_t buff[10] = {'B', 'E', 'E', 'F', '\0'};
-    // memcpy((void*)&g_UsbDeviceHidGeneric.buffer[1][0], buff, 5);
     if (g_UsbDeviceHidGeneric.attach)
     {
         // Call our USB callback.
         usb_cb();
-        return kStatus_USB_Error;
+        return USB_DeviceSendRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_ISO_ENDPOINT_IN,
+                                     (uint8_t *)&g_UsbDeviceHidGeneric.buffer[2][0],
+                                     USB_HID_GENERIC_OUT_BUFFER_LENGTH);
+    }
+
+    return kStatus_USB_Error;
+}
+
+/* The hid generic interrupt IN endpoint callback */
+static usb_status_t USB_DeviceHidGenericInterruptIn(usb_device_handle handle,
+                                                    usb_device_endpoint_callback_message_struct_t *message,
+                                                    void *callbackParam)
+{
+    if (g_UsbDeviceHidGeneric.attach)
+    {
+        // Call our USB callback.
+        usb_cb();
+        return USB_DeviceSendRequest(g_UsbDeviceHidGeneric.deviceHandle, USB_HID_GENERIC_INT_ENDPOINT_OUT,
+                                     (uint8_t *)&g_UsbDeviceHidGeneric.buffer[1][0],
+                                     USB_HID_GENERIC_OUT_BUFFER_LENGTH);
     }
 
     return kStatus_USB_Error;
@@ -164,8 +183,6 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
                 }
                 else
                 {
-                    epInitStruct.maxPacketSize = FS_HID_GENERIC_INTERRUPT_IN_PACKET_SIZE;
-                    epInitStruct.interval      = FS_HID_GENERIC_INTERRUPT_IN_INTERVAL;
                 }
 
                 USB_DeviceInitEndpoint(handle, &epInitStruct, &epCallback);
@@ -183,8 +200,23 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
                 }
                 else
                 {
-                    epInitStruct.maxPacketSize = FS_HID_GENERIC_INTERRUPT_OUT_PACKET_SIZE;
-                    epInitStruct.interval      = FS_HID_GENERIC_INTERRUPT_OUT_INTERVAL;
+                }
+
+                USB_DeviceInitEndpoint(handle, &epInitStruct, &epCallback);
+
+                epCallback.callbackFn    = USB_DeviceHidGenericIsochronousIn;
+                epCallback.callbackParam = handle;
+
+                epInitStruct.zlt          = 0U;
+                epInitStruct.transferType = USB_ENDPOINT_ISOCHRONOUS;
+                epInitStruct.endpointAddress = USB_HID_GENERIC_ISO_ENDPOINT_IN | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
+                if (USB_SPEED_HIGH == g_UsbDeviceHidGeneric.speed)
+                {
+                    epInitStruct.maxPacketSize = HS_HID_GENERIC_ISO_IN_PACKET_SIZE;
+                    epInitStruct.interval      = HS_HID_GENERIC_ISO_IN_INTERVAL;
+                }
+                else
+                {
                 }
 
                 USB_DeviceInitEndpoint(handle, &epInitStruct, &epCallback);
@@ -235,7 +267,11 @@ usb_status_t USB_DeviceConfigureEndpointStatus(usb_device_handle handle, uint8_t
         if (((USB_HID_GENERIC_INT_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK)) ||
             ((USB_HID_GENERIC_INT_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
-             (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))))
+             (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))) ||
+            ((USB_HID_GENERIC_ISO_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+             (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))
+
+        )
         {
             return USB_DeviceStallEndpoint(handle, ep);
         }
@@ -248,7 +284,10 @@ usb_status_t USB_DeviceConfigureEndpointStatus(usb_device_handle handle, uint8_t
         if (((USB_HID_GENERIC_INT_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
              (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK)) ||
             ((USB_HID_GENERIC_INT_ENDPOINT_OUT == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
-             (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))))
+             (!(ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))) ||
+            ((USB_HID_GENERIC_ISO_ENDPOINT_IN == (ep & USB_ENDPOINT_NUMBER_MASK)) &&
+             (ep & USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_MASK))
+        )
         {
             return USB_DeviceUnstallEndpoint(handle, ep);
         }
@@ -307,7 +346,7 @@ usb_status_t USB_DeviceProcessClassRequest(usb_device_handle handle,
     return error;
 }
 
-void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF, CB_usb_complete_fptr_t cb)
+void USB_DeviceApplicationInit(uint8_t *INT_IN_EP_BUFF, uint8_t *INT_OUT_EP_BUFF, uint8_t *ISO_IN_EP_BUFF, CB_usb_complete_fptr_t cb)
 {
     USB_DeviceClockInit();
 
@@ -318,8 +357,10 @@ void USB_DeviceApplicationInit(uint8_t *IN_EP_BUFF, uint8_t *OUT_EP_BUFF, CB_usb
     g_UsbDeviceHidGeneric.speed        = USB_SPEED_FULL;
     g_UsbDeviceHidGeneric.attach       = 0U;
     g_UsbDeviceHidGeneric.deviceHandle = NULL;
-    g_UsbDeviceHidGeneric.buffer[0]    = OUT_EP_BUFF;
-    g_UsbDeviceHidGeneric.buffer[1]    = IN_EP_BUFF;
+    g_UsbDeviceHidGeneric.buffer[0]    = INT_OUT_EP_BUFF;
+    g_UsbDeviceHidGeneric.buffer[1]    = INT_IN_EP_BUFF;
+    g_UsbDeviceHidGeneric.buffer[2]    = ISO_IN_EP_BUFF;
+
 
     /* Initialize the usb stack and class drivers */
     if (kStatus_USB_Success != USB_DeviceInit(CONTROLLER_ID, USB_DeviceCallback, &g_UsbDeviceHidGeneric.deviceHandle))

@@ -36,8 +36,9 @@ SOFTWARE.
 #define ADC_COUNT_OFFSET    13636
 #define USB_INTERVAL        1
 
-uint8_t rx_buffer[USB_HID_GENERIC_OUT_BUFFER_LENGTH] = {0x00};
-uint8_t tx_buffer[USB_HID_GENERIC_IN_BUFFER_LENGTH] = {0x00};
+uint8_t int_rx_buffer[USB_HID_GENERIC_OUT_BUFFER_LENGTH] = {0x00};
+uint8_t int_tx_buffer[USB_HID_GENERIC_IN_BUFFER_LENGTH] = {0x00};
+uint8_t iso_tx_buffer[USB_HID_GENERIC_IN_BUFFER_LENGTH] = {0x00};
 uint16_t adc_samples = 0x00;
 uint16_t sample_index = 0x02;
 
@@ -52,7 +53,7 @@ int main(void)
     BOARD_Init();
 
     // Module init
-    USB_DeviceApplicationInit(tx_buffer, rx_buffer, usb_cb);
+    USB_DeviceApplicationInit(int_tx_buffer, int_rx_buffer, iso_tx_buffer, usb_cb);
     adc_init(adc_cb);
     ui_init();
 
@@ -80,8 +81,8 @@ void adc_cb(uint16_t count) {
     }
 
     // DATA & ADDRESS IS LOADED LSB FIRST
-    memcpy(&tx_buffer[0], &adc_samples, 2);
-    memcpy(&tx_buffer[sample_index++], &count, 2);
+    memcpy(&int_tx_buffer[0], &adc_samples, 2);
+    memcpy(&int_tx_buffer[sample_index++], &count, 2);
     adc_samples++;
     sample_index++;
     // tx_buffer[0] = (uint8_t)(adc_samples >> 8);
@@ -91,7 +92,7 @@ void adc_cb(uint16_t count) {
 }
 
 void usb_cb(void) {
-    memset(tx_buffer, 0x00, USB_HID_GENERIC_IN_BUFFER_LENGTH);
+    memset(int_tx_buffer, 0x00, USB_HID_GENERIC_IN_BUFFER_LENGTH);
     adc_samples = 0x00;
     sample_index = 0x02;
 }
